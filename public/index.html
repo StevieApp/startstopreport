@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Interview</title>
+    <link rel="icon" type="image/png" href="./stevieapp.png" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./server.js"></script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        //var socket = io('http://127.0.0.1:8000');
+        //ip and socket not specified because they are on the same ip
+        var socket = io();
+        socket.on('connect', function() {
+            console.log('Connected to Server');
+        });
+        socket.on('createMessage', (newMessage) => {
+            console.log('newMessage', newMessage);
+        });
+        socket.on('connected', (newMessage) => {
+            console.log('connected', newMessage);
+        });
+        socket.on('messageReceive', (newMessage) => {
+            console.log('message received', newMessage);
+        });
+        socket.on('stopwatchstarted', (data) => {
+            document.getElementById('neemo').style.backgroundColor = getRandomColor();
+            showservers(data);
+            console.log('stopwatch started at ', data.date);
+        });
+        socket.on('stopwatchstopped', (data) => {
+            document.getElementById('neemo').style.backgroundColor = getRandomColor();
+            showservers(data);
+            console.log('stopwatch stopped at ', data.date);
+        });
+
+        function showservers(data) {
+            var inactivestring = "";
+            var activestring = "";
+            //console.log(data.inactiveservers.length);
+            if (data.inactiveservers) {
+                data.inactiveservers.forEach((val) => {
+                    inactivestring = inactivestring.concat("<div class='borders shadow-sm'><p><b>Id:</b> " +
+                        val.id + "</p><p><b>Name:</b> " + val.name + "</p><p><b>Created at:</b> " + val.created_at +
+                        "</p><p><b>Stopped at:</b> " + val.stopped_at +
+                        "</p></div>")
+                });
+            }
+            if (data.activeservers) {
+                data.activeservers.forEach((val) => {
+                    activestring = activestring.concat("<div class='borders2 shadow-sm'><p><b>Id:</b> " +
+                        val.id + "</p><p><b>Name:</b> " + val.name + "</p><p><b>Created at:</b> " + val.created_at +
+                        "</p></div>")
+                });
+            }
+            document.getElementById("inactive").innerHTML = inactivestring;
+            document.getElementById("active").innerHTML = activestring;
+        }
+
+        function numberGen() {
+            //var number = Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
+            var number = Math.floor((Math.random() * (20 - 10 + 1)) + 10);
+            document.getElementById("output").innerHTML = number;
+            document.getElementById("output").style.color = getRandomColor();
+        }
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function sendmessage() {
+            socket.emit('sendMessage', {
+                message: 'Message to server'
+            });
+        }
+
+        function startcounter() {
+            socket.emit('startstopwatch', {
+                message: 'Message to server'
+            });
+        }
+
+        function stopcounter() {
+            socket.emit('stopstopwatch', {
+                message: 'Message to server'
+            });
+        }
+
+        function requestreport() {
+            socket.emit('requestreport', {});
+        }
+    </script>
+</head>
+
+<body>
+    <h2 style="text-align: center;">
+        Now HTML
+    </h2>
+    <div>
+        <p id="timing"></p>
+        <p>Random number between 10 and 20: <b id="output"></b></p>
+    </div>
+    <button class="btn btn-light" onclick="sendmessage()">
+        Hit server
+    </button>
+    <button class="btn btn-success" onclick="startcounter()">
+        Start Servers
+    </button>
+    <button class="btn btn-danger" onclick="stopcounter()">
+        Stop Servers
+    </button>
+    <button class="btn btn-primary" onclick="requestreport()">
+        Report
+    </button>
+    <div id="neemo" style="display: flex; width: 100%;height: 90px;margin-top: 20px;">
+        <div style="margin-left: auto;margin-right: auto;">
+            <b id="stopwatchtime"></b>
+        </div>
+        <div style="margin-left: auto;margin-right: auto;">
+            <b id="stopwatchtimems"></b>
+        </div>
+    </div>
+    <div class="container" style="margin-top:90px;">
+        <div class="row">
+            <div class="col">
+                <h3>Inactive Servers</h3>
+                <div id="inactive">
+
+                </div>
+            </div>
+            <div class="col">
+                <h3>Active Servers</h3>
+                <div id="active">
+
+                </div>
+            </div>
+            <div class="col">
+                <h3>Report</h3>
+                <div id="report">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var dateelement = document.getElementById("timing");
+    var counttime = document.getElementById("stopwatchtime");
+    var counttimems = document.getElementById("stopwatchtimems");
+    var report = document.getElementById("report");
+    //console.log(dateelement);
+    socket.on('timing', (data) => {
+        //console.log('time received', data);
+        dateelement.innerHTML = data.time;
+        numberGen();
+    });
+    socket.on('stopwatchtime', (data) => {
+        showservers(data);
+        if (data.time == undefined) {
+            counttime.innerHTML = '0ms';
+        } else {
+            counttime.innerHTML = data.time.split(' ')[0];
+            counttimems.innerHTML = data.time.split(' ')[1];
+        }
+    });
+    socket.on('thereport', (data) => {
+        //console.log('time received', data);
+        document.getElementById('neemo').style.backgroundColor = getRandomColor();
+        var wholereport = "";
+        data.reports.forEach((item) => {
+            wholereport = wholereport.concat("<div class='borders3 shadow-sm'><p>" + item + "</p></div>");
+        });
+        report.innerHTML = wholereport;
+    });
+</script>
+
+</html>

@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'digital7';
+    src: url('./clockfont/digital-7.ttf') format('truetype'), url('./clockfont/digital-7.woff') format('woff');
+}
+
+#stopwatchtime {
+    font-family: 'digital7', monospace;
+    font-size: 70px;
+    text-align: center;
+    position: absolute;
+    right: 0;
+    margin-right: 50%;
+}
+
+#stopwatchtimems {
+    font-family: 'digital7', monospace;
+    font-size: 40px;
+    line-height: 60px;
+    text-align: center;
+    position: absolute;
+    margin-top: 30px;
+    right: 0;
+    margin-right: calc(40% + 60px);
+}
+
+.borders {
+    border-radius: 10px;
+    width: 100%;
+    border: 1px solid red;
+    padding: 5px;
+    margin: 10px;
+}
+
+.borders2 {
+    border-radius: 10px;
+    width: 100%;
+    border: 1px solid green;
+    padding: 5px;
+    margin: 10px;
+}
+
+.borders3 {
+    border-radius: 10px;
+    width: 100%;
+    border: 1px solid green;
+    padding: 5px;
+    margin: 10px;
+}
