@@ -5,14 +5,20 @@
 // startservers();
 var express = require('express');
 var socket = require('socket.io');
-//const { Server } = require("socket.io");
+const cors = require('cors')
+const corsOptions = {
+        origin: '*',
+        optionsSuccessStatus: 200
+    }
+    //const { Server } = require("socket.io");
 var app = express();
 app.use(express.static(__dirname + '/public')); //__dir and not _dir
 var port = 8000; // you can use any port
+app.use(cors(corsOptions))
 var server = app.listen(port);
 const Stopwatch = require('statman-stopwatch');
 //const io = new Server(server);
-var socketed = require('socket.io')(server);
+var socketed = require('socket.io')(server, { cors: { origin: '*' } });
 socketed.on('connection', (sockets) => {
     var myJSON = JSON.parse('{}');
     var servers;
